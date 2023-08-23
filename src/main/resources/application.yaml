@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://summer.cwgsfrqp6abo.ap-northeast-2.rds.amazonaws.com:3306/summer?serverTimezone=UTC&characterEncoding=UTF-8
+    username: admin
+    password: HEzTIxQeFN5iSxqOR8Bo
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+logging.level:
+  org.hibernate.SQL: debug
+  org.hibernate.type: trace
