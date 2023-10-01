@@ -11,5 +11,6 @@ import java.util.Optional;
 public interface WorkoutRepository extends CrudRepository<Workout, Long> {
 
     List<Workout> findByMemberIdAndDateBetween(Long memberId, LocalDate startDate, LocalDate endDate);
+    List<Workout> findByMemberIdAndDate(Long memberId, LocalDate date);
 
 }

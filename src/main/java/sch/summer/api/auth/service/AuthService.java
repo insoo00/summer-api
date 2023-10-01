@@ -74,7 +74,7 @@ public class AuthService {
 
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> jsonMap = objectMapper.readValue(result, new TypeReference<Map<String, Object>>() {});
-             kakaoId= (Long) jsonMap.get("id");
+            kakaoId = (Long) jsonMap.get("id");
 
         } catch (IOException e) {
             e.printStackTrace();

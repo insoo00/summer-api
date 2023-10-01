@@ -18,6 +18,7 @@ import sch.summer.domain.member.Member;
 import sch.summer.domain.member.repository.MemberRepository;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.file.AccessDeniedException;
 
 @Slf4j
 @Component
@@ -47,7 +48,7 @@ public class CurrentMemberArgResolver implements HandlerMethodArgumentResolver {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             token = authorization.substring(7);
         }
-        AccessToken findMemberByAccessToken = accessTokenRepository.findByToken(token).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 토큰 정보입니다."));
+        AccessToken findMemberByAccessToken = accessTokenRepository.findByToken(token).orElseThrow(() -> new AccessDeniedException("Access Denied"));
         Member findMember = findMemberByAccessToken.getMember();
         return findMember;
     }

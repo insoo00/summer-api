@@ -7,8 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sch.summer.api.dto.Result;
 import sch.summer.api.member.dto.MemberDto;
+import sch.summer.api.workout.dto.calendar.WorkoutCalendarDailyDto;
 import sch.summer.api.workout.dto.calendar.WorkoutCalendarDto;
 import sch.summer.api.workout.dto.WorkoutRecordDto;
+import sch.summer.api.workout.dto.calendar.WorkoutCalendarMonthlyDto;
 import sch.summer.api.workout.dto.calendar.WorkoutCalendarResponseDto;
 import sch.summer.api.workout.service.WorkoutService;
 import sch.summer.domain.member.Member;
@@ -49,10 +51,10 @@ public class WorkoutController {
         LocalDate startDate = LocalDate.parse(date);
         LocalDate endDate = startDate.plusMonths(1);
 
-        List<Workout> byMemberIdAndDateBetween = workoutRepository.findByMemberIdAndDateBetween(member.getId(), startDate, endDate);
+        List<Workout> workouts = workoutRepository.findByMemberIdAndDateBetween(member.getId(), startDate, endDate);
 
         Map<LocalDate, List<sch.summer.api.workout.dto.calendar.WorkoutRecordDto>> workoutCalendarDto = new HashMap<>();
-        for (Workout workout : byMemberIdAndDateBetween) {
+        for (Workout workout : workouts) {
             LocalDate workoutDate = workout.getDate();
 
             if (!workoutCalendarDto.containsKey(workoutDate)) {
@@ -67,7 +69,47 @@ public class WorkoutController {
             finalTest.add(new WorkoutCalendarDto(key.toString(), workoutCalendarDto.get(key)));
         }
 
-
         return ResponseEntity.ok(new WorkoutCalendarResponseDto(finalTest));
+    }
+
+    @GetMapping("/calendar/monthly")
+    public ResponseEntity<WorkoutCalendarMonthlyDto> getWorkoutCalendarMonthly(
+            @CurrentMember Member member,
+            @RequestParam("date") String date) {
+
+        List<String> workoutDate = new ArrayList<>();
+        LocalDate startDate = LocalDate.parse(date);
+        LocalDate endDate = startDate.plusMonths(1);
+
+        List<Workout> workouts = workoutRepository.findByMemberIdAndDateBetween(member.getId(), startDate, endDate);
+
+        for (Workout workout : workouts) {
+            workoutDate.add(workout.getDate().toString());
+        }
+
+        return ResponseEntity.ok(new WorkoutCalendarMonthlyDto(removeDuplicates(workoutDate)));
+    }
+
+    @GetMapping("/calendar/daily")
+    public ResponseEntity<WorkoutCalendarDailyDto> getWorkoutCalendarDaily(
+            @CurrentMember Member member,
+            @RequestParam("date") String date)  {
+
+        List<sch.summer.api.workout.dto.calendar.WorkoutRecordDto> workoutRecords = new ArrayList<>();
+
+        LocalDate workoutDate = LocalDate.parse(date);
+        List<Workout> workouts = workoutRepository.findByMemberIdAndDate(member.getId(), workoutDate);
+
+        for (Workout workout : workouts) {
+            workoutRecords.add(modelMapper.map(workout, sch.summer.api.workout.dto.calendar.WorkoutRecordDto.class));
+        }
+
+        return ResponseEntity.ok(new WorkoutCalendarDailyDto(workoutRecords));
+    }
+
+    public static List<String> removeDuplicates(List<String> dateStrings) {
+        Set<String> uniqueDatesSet = new HashSet<>(dateStrings);
+        List<String> uniqueDatesList = new ArrayList<>(uniqueDatesSet);
+        return uniqueDatesList;
     }
 }
